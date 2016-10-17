@@ -42,10 +42,10 @@ public:
     QString m_path;
     QJsonObject m_prv_object;
 
-    IIntCounter* allocatedCounter = nullptr;
-    IIntCounter* freedCounter = nullptr;
-    IIntCounter* bytesReadCounter = nullptr;
-    IIntCounter* bytesWrittenCounter = nullptr;
+    IIntCounter *allocatedCounter = nullptr;
+    IIntCounter *freedCounter = nullptr;
+    IIntCounter *bytesReadCounter = nullptr;
+    IIntCounter *bytesWrittenCounter = nullptr;
 
     void construct_and_clear();
     bool read_header_if_needed();
@@ -58,7 +58,7 @@ DiskReadMda::DiskReadMda(const QString& path)
 {
     d = new DiskReadMdaPrivate;
     d->q = this;
-    ICounterManager* manager = ObjectRegistry::getObject<ICounterManager>();
+    ICounterManager *manager = ObjectRegistry::getObject<ICounterManager>();
     if (manager) {
         d->allocatedCounter = static_cast<IIntCounter*>(manager->counter("allocated_bytes"));
         d->freedCounter = static_cast<IIntCounter*>(manager->counter("freed_bytes"));

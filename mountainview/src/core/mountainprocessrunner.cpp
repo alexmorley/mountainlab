@@ -139,12 +139,12 @@ QJsonObject http_post(QString url, QJsonObject req)
         str.replace("\\n", "\n");
         printf("%s\n", (str.toLatin1().data()));
         QJsonObject obj = QJsonDocument::fromJson(ret.toLatin1()).object();
-        ICounterManager* manager = ObjectRegistry::getObject<ICounterManager>();
+        ICounterManager *manager = ObjectRegistry::getObject<ICounterManager>();
         if (manager) {
-            IIntCounter* bytesDownloadedCounter = static_cast<IIntCounter*>(manager->counter("bytes_downloaded"));
+            IIntCounter *bytesDownloadedCounter = static_cast<IIntCounter*>(manager->counter("bytes_downloaded"));
             bytesDownloadedCounter->add(ret.count());
         }
-        //        TaskManager::TaskProgressMonitor::globalInstance()->incrementQuantity("bytes_downloaded", ret.count());
+//        TaskManager::TaskProgressMonitor::globalInstance()->incrementQuantity("bytes_downloaded", ret.count());
         return obj;
     }
 }
@@ -263,9 +263,9 @@ void MountainProcessRunner::runProcess()
         QTime post_timer;
         post_timer.start();
         QJsonObject resp = http_post(url, req);
-        ICounterManager* manager = ObjectRegistry::getObject<ICounterManager>();
+        ICounterManager *manager = ObjectRegistry::getObject<ICounterManager>();
         if (manager) {
-            IIntCounter* remote_processing_time_counter = static_cast<IIntCounter*>(manager->counter("remote_processing_time"));
+            IIntCounter *remote_processing_time_counter = static_cast<IIntCounter*>(manager->counter("remote_processing_time"));
             remote_processing_time_counter->add(post_timer.elapsed());
         }
         if (MLUtil::threadInterruptRequested()) {
