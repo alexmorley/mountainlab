@@ -256,6 +256,29 @@ QImage HistogramView::renderImage(int W, int H)
     return ret;
 }
 
+void HistogramView::renderView(QPainter *painter, const QRectF &rect)
+{
+
+//    painter.setFont(this->font());
+
+    bool selected = d->m_selected;
+    bool hovered = d->m_hovered;
+    bool current = d->m_current;
+    int hovered_bin_index = d->m_hovered_bin_index;
+
+    d->m_selected = false;
+    d->m_hovered = false;
+    d->m_hovered_bin_index = -1;
+    d->m_current = false;
+
+    d->do_paint(*painter, rect.width(), rect.height());
+
+    d->m_selected = selected;
+    d->m_hovered = hovered;
+    d->m_hovered_bin_index = hovered_bin_index;
+    d->m_current = current;
+}
+
 QRectF make_rect2(QPointF p1, QPointF p2)
 {
     double x = qMin(p1.x(), p2.x());

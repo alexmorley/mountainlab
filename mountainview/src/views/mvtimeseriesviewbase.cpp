@@ -293,6 +293,15 @@ void MVTimeSeriesViewBase::setSelectedTimeRange(MVRange range)
     update();
 }
 
+void MVTimeSeriesViewBase::renderView(QPainter *painter, const QRectF &rect)
+{
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->translate(rect.left(), rect.top());
+    d->m_paint_layer_stack.paint(painter);
+    painter->restore();
+}
+
 void MVTimeSeriesViewBase::setActivated(bool val)
 {
     if (d->m_activated == val)
@@ -329,14 +338,11 @@ void MVTimeSeriesViewBase::paintEvent(QPaintEvent* evt)
     Q_UNUSED(evt)
 
     QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing);
-
     /// TODO make background layer
     mvtsv_colors colors = d->m_prefs.colors;
     QColor back_col = colors.background_color;
     painter.fillRect(0, 0, width(), height(), back_col);
-
-    d->m_paint_layer_stack.paint(&painter);
+    renderView(&painter);
 }
 
 void MVTimeSeriesViewBase::mousePressEvent(QMouseEvent* evt)

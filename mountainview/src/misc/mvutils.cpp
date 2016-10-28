@@ -104,7 +104,7 @@ void draw_axis(QPainter* painter, draw_axis_opts opts)
     pen.setWidth(opts.line_width);
     painter->setPen(pen);
     QFont font = painter->font();
-    font.setPixelSize(opts.font_size_pix);
+    font.setPointSize(opts.font_size_pix);
     painter->setFont(font);
     if (opts.orientation == Qt::Vertical) {
         //ensure that pt2.y>=pt1.y

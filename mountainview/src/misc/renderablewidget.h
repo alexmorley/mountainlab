@@ -7,9 +7,10 @@
 #define RENDERABLEWIDGET_H
 
 #include <QWidget>
+#include "renderable.h"
 
 class RenderableWidgetPrivate;
-class RenderableWidget : public QWidget {
+class RenderableWidget : public QWidget, public Renderable {
 public:
     friend class RenderableWidgetPrivate;
     RenderableWidget(QWidget* parent = 0);
@@ -18,6 +19,7 @@ public:
     bool exportMode() const;
     virtual QImage renderImage(int W, int H) = 0;
 
+    virtual void renderView(QPainter *painter, const QRectF &rect);
 private:
     RenderableWidgetPrivate* d;
 };

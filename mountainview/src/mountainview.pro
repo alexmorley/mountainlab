@@ -35,10 +35,12 @@ HEADERS += clusterdetailplugin.h clusterdetailview.h \
     msv/views/curationprogramcontroller.h \
     core/resolveprvsdialog.h \
     views/mvgridview.h \
+    core/viewimageexporter.h \
     views/mvgridviewpropertiesdialog.h \
     misc/renderablewidget.h \
     misc/jscounter.h \
-    core/mvabstractcontext.h
+    core/mvabstractcontext.h \
+    misc/renderable.h
 SOURCES += clusterdetailplugin.cpp clusterdetailview.cpp \
     clusterdetailviewpropertiesdialog.cpp \
     msv/views/matrixview.cpp \
@@ -51,10 +53,12 @@ SOURCES += clusterdetailplugin.cpp clusterdetailview.cpp \
     msv/views/curationprogramcontroller.cpp \
     core/resolveprvsdialog.cpp \
     views/mvgridview.cpp \
+    core/viewimageexporter.cpp \
     views/mvgridviewpropertiesdialog.cpp \
     misc/renderablewidget.cpp \
     misc/jscounter.cpp \
-    core/mvabstractcontext.cpp
+    core/mvabstractcontext.cpp \
+    misc/renderable.cpp
 FORMS += clusterdetailviewpropertiesdialog.ui
 
 INCLUDEPATH += ../../prv-gui/src
@@ -200,7 +204,8 @@ RESOURCES += mountainview.qrc \
 FORMS += \
     controlwidgets/prvmanagerdialog.ui \
     controlwidgets/resolveprvsdialog.ui \
-    views/mvgridviewpropertiesdialog.ui
+    views/mvgridviewpropertiesdialog.ui \
+    core/exportpreviewwidget.ui
 
 DISTFILES += \
     msv/views/curationprogram.js

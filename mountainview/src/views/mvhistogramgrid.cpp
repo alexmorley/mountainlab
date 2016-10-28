@@ -29,6 +29,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent* evt);
+    void paintAxis(QPainter *painter, int width, const QString &label);
 };
 
 class MVHistogramGridPrivate {
@@ -346,11 +347,16 @@ void HorizontalScaleAxis::paintEvent(QPaintEvent* evt)
 {
     Q_UNUSED(evt)
     QPainter painter(this);
-    QPen pen = painter.pen();
-    pen.setColor(Qt::black);
-    painter.setPen(pen);
+    paintAxis(&painter, width(), m_data.label);
+}
 
-    int W0 = width();
+void HorizontalScaleAxis::paintAxis(QPainter *painter, int width, const QString &label)
+{
+    QPen pen = painter->pen();
+    pen.setColor(Qt::black);
+    painter->setPen(pen);
+
+    int W0 = width;
     //int H0=height();
     int H1 = 8;
     int margin1 = 6;
@@ -359,14 +365,14 @@ void HorizontalScaleAxis::paintEvent(QPaintEvent* evt)
     QPointF pt2(W0 - margin1, H1);
     QPointF pt3(W0 / 2, H1 - len1);
     QPointF pt4(W0 - margin1, H1 - len1);
-    painter.drawLine(pt1, pt2);
-    painter.drawLine(pt1, pt3);
-    painter.drawLine(pt2, pt4);
+    painter->drawLine(pt1, pt2);
+    painter->drawLine(pt1, pt3);
+    painter->drawLine(pt2, pt4);
 
-    QFont font = painter.font();
+    QFont font = painter->font();
     font.setPixelSize(12);
-    painter.setFont(font);
+    painter->setFont(font);
     QRect text_box(W0 / 2, H1 + 3, W0 / 2, H1 + 3);
-    QString txt = QString("%1").arg(m_data.label);
-    painter.drawText(text_box, txt, Qt::AlignCenter | Qt::AlignTop);
+    QString txt = QString("%1").arg(label);
+    painter->drawText(text_box, txt, Qt::AlignCenter | Qt::AlignTop);
 }

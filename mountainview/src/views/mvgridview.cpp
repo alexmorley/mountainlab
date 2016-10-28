@@ -425,3 +425,48 @@ QImage MVGridView::renderImage(int W, int H)
 
     return ret;
 }
+
+void MVGridView::renderView(QPainter *painter, const QRectF &rect)
+{
+    int W = rect.isNull() ? painter->device()->width()  : rect.width();
+    int H = rect.isNull() ? painter->device()->height() : rect.height();
+
+    int max_row = 0, max_col = 0;
+    for (int i = 0; i < d->m_views.count(); i++) {
+        QWidget* W = d->m_views[i];
+        int row = W->property("row").toInt();
+        int col = W->property("col").toInt();
+        max_row = qMax(max_row, row);
+        max_col = qMax(max_col, col);
+    }
+    int NR = max_row + 1, NC = max_col + 1;
+    if (d->m_properties.use_fixed_panel_size) {
+        W = d->m_properties.fixed_panel_width * NC;
+        H = d->m_properties.fixed_panel_height * NR;
+    }
+    int spacingx = (W / NC) * 0.1; // 10% of cell width
+    int spacingy = (H / NR) * 0.1; // 10% of cell height
+    int W0 = (W - spacingx * (NC + 1)) / NC; // real cell width
+    int H0 = (H - spacingy * (NR + 1)) / NR; // real cell height
+
+    for (int i = 0; i < d->m_views.count(); i++) {
+        RenderableWidget* W = d->m_views[i];
+        int row = W->property("row").toInt();
+        int col = W->property("col").toInt();
+        W->setExportMode(true);
+        int x0 = spacingx + (W0 + spacingx) * col;
+        int y0 = spacingy + (H0 + spacingy) * row;
+        const QRectF destRect = QRectF(rect.left()+x0, rect.top()+y0, W0, H0);
+        painter->save();
+        W->renderView(painter, destRect);
+        painter->restore();
+        W->setExportMode(false);
+        painter->save();
+        QPen pen = painter->pen();
+        pen.setColor(Qt::lightGray);
+        painter->setPen(pen);
+        painter->setBrush(Qt::NoBrush);
+        painter->drawRect(destRect);
+        painter->restore();
+    }
+}

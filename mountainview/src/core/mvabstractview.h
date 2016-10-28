@@ -11,11 +11,12 @@
 #include "mlcommon.h"
 #include <QMimeData>
 #include <QWidget>
+#include "renderable.h"
 
 class MVAbstractViewFactory;
 class MVAbstractViewPrivate;
 class CalculationThread;
-class MVAbstractView : public QWidget {
+class MVAbstractView : public QWidget, public Renderable {
     Q_OBJECT
 public:
     enum ViewFeature {
@@ -52,7 +53,7 @@ public slots:
     MVAbstractContext* mvContext();
 
     virtual ViewFeatures viewFeatures() const;
-    virtual void renderView(QPainter* painter); // add render opts
+    virtual void renderView(QPainter* painter, const QRectF &destRect = QRectF()); // add render opts
 
 signals:
     void calculationStarted();

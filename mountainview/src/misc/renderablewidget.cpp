@@ -5,6 +5,7 @@
 *******************************************************/
 
 #include "renderablewidget.h"
+#include <QPainter>
 
 class RenderableWidgetPrivate {
 public:
@@ -32,4 +33,11 @@ void RenderableWidget::setExportMode(bool val)
 bool RenderableWidget::exportMode() const
 {
     return d->m_export_mode;
+}
+
+void RenderableWidget::renderView(QPainter *painter, const QRectF &rect)
+{
+    // fallback to rendering the image
+    QImage img = renderImage(rect.width(), rect.height());
+    painter->drawImage(rect, img);
 }

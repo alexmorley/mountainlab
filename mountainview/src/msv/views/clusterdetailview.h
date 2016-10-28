@@ -66,6 +66,10 @@ private slots:
 
 private:
     ClusterDetailViewPrivate* d;
+
+public:
+    ViewFeatures viewFeatures() const override;
+    void renderView(QPainter *painter, const QRectF &rect = QRectF()) override;
 };
 
 #endif // MVCLUSTERDETAILWIDGET_H

@@ -1,9 +1,18 @@
 #ifndef VIEWIMAGEEXPORTER_H
 #define VIEWIMAGEEXPORTER_H
 
-class ViewImageExporter {
+#include <QObject>
+#include <mvabstractview.h>
+class QDialog;
+
+class ViewImageExporter : public QObject
+{
+    Q_OBJECT
 public:
-    ViewImageExporter();
+    ViewImageExporter(QObject *parent = 0);
+
+    virtual QDialog* createViewExportDialog(MVAbstractView *view, QWidget *parent = 0);
+    virtual bool simpleExport(MVAbstractView *view);
 };
 
 #endif // VIEWIMAGEEXPORTER_H
