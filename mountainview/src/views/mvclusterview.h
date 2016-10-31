@@ -24,6 +24,8 @@
  *  Several modes are available
  */
 
+// TODO: Rewrite using OpenGL
+
 class MVClusterViewPrivate;
 class MVClusterView : public QWidget {
     Q_OBJECT

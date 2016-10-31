@@ -20,7 +20,7 @@ enum CrossCorrelogramMode3 {
     Matrix_Of_Cross_Correlograms3,
     Selected_Cross_Correlograms3
 };
-
+#include <QQmlListProperty>
 struct CrossCorrelogramOptions3 {
     CrossCorrelogramMode3 mode = Undefined3;
     QList<int> ks;

@@ -2,6 +2,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QPainter>
+#include <QFileDialog>
 #include <QPdfWriter>
 #include <QScrollArea>
 #include <QSpinBox>
@@ -39,8 +40,10 @@ protected:
         painter.save();
         if (m_view->viewFeatures() & MVAbstractView::RenderView)
             m_view->renderView(&painter);
-        else
+        else {
+            qWarning() << "View" << m_view->metaObject()->className() << "didn't report renderView capabilities. Using fallback code path";
             m_view->render(&painter);
+        }
         painter.restore();
     }
 
@@ -78,23 +81,38 @@ public:
 
     void accept() {
         if (!m_view) return;
-        QPdfWriter writer("/tmp/export.pdf");
-        const int resolution = 100;
-        writer.setResolution(resolution);
-        writer.setPageSize(QPageSize(QSizeF(ui->width->value(), ui->height->value())/resolution, QPageSize::Inch));
-        writer.setPageMargins(QMargins(0,0,0,0));
-        //        writer.setPageSize(QPdfWriter::A4);
-        //        writer.setPageOrientation(QPageLayout::Landscape);
-        QPainter painter(&writer);
-        setupPainter(&painter);
-        m_view->renderView(&painter);
-#if 0
-        QImage img(ui->width->value(), ui->height->value(), QImage::Format_ARGB32);
-        img.fill(Qt::transparent);
-        QPainter painter(&img);
-        m_view->renderView(&painter);
-        img.save("/tmp/export.png", "PNG");
+        QStringList filters;
+        filters << "Images (*.png *.jpg *.bmp)";
+        filters << "Portable Document Format (*.pdf)";
+#ifdef QT_SVG_LIB
+        filters << "Scalable Vector Format (*.svg)";
 #endif
+        QString selectedFilter;
+        QString path = QFileDialog::getSaveFileName(window(),
+                                                    tr("Export view..."),
+                                                    QString(),
+                                                    filters.join(";;"),
+                                                    &selectedFilter);
+
+        if (path.isEmpty()) return;
+        if (selectedFilter == filters.at(1)) {
+            QPdfWriter writer(path);
+            const int resolution = 100;
+            writer.setResolution(resolution);
+            writer.setPageSize(QPageSize(QSizeF(ui->width->value(), ui->height->value())/resolution, QPageSize::Inch));
+            writer.setPageMargins(QMargins(0,0,0,0));
+            //        writer.setPageSize(QPdfWriter::A4);
+            //        writer.setPageOrientation(QPageLayout::Landscape);
+            QPainter painter(&writer);
+            setupPainter(&painter);
+            m_view->renderView(&painter);
+        } else if (selectedFilter == filters.at(0)){
+            QImage img(ui->width->value(), ui->height->value(), QImage::Format_ARGB32);
+            img.fill(Qt::transparent);
+            QPainter painter(&img);
+            m_view->renderView(&painter);
+            img.save(path);
+        }
         QDialog::accept();
     }
 

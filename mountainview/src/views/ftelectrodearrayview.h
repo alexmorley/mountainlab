@@ -7,6 +7,8 @@
 
 class FTElectrodeArrayViewPrivate;
 
+// TODO: Rewrite using graphics view
+
 class FTElectrodeArrayView : public QWidget {
     Q_OBJECT
 public:

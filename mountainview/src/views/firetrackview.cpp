@@ -28,10 +28,8 @@ FireTrackView::FireTrackView(MVAbstractContext* context)
     d->m_electrode_array_view = new FTElectrodeArrayView;
     d->m_electrode_array_view->setShowChannelNumbers(true);
 
-    QHBoxLayout* layout = new QHBoxLayout;
+    QHBoxLayout* layout = new QHBoxLayout(this);
     layout->addWidget(d->m_electrode_array_view);
-
-    this->setLayout(layout);
 
     MVContext* c = qobject_cast<MVContext*>(context);
     Q_ASSERT(c);

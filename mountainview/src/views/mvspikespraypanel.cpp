@@ -1,5 +1,6 @@
 #include "mvspikespraypanel.h"
 
+#include <QtConcurrentMap>
 #include <QList>
 #include <QMutex>
 #include <QPainter>

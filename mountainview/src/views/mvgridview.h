@@ -28,6 +28,7 @@ public:
     int currentViewIndex() const;
 
     QImage renderImage(int W = 0, int H = 0);
+    ViewFeatures viewFeatures() const;
     void renderView(QPainter *painter, const QRectF &rect = QRectF());
 
 signals:

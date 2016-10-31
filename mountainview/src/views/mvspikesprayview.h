@@ -31,7 +31,6 @@ public:
     void loadStaticView(const QJsonObject& X) Q_DECL_OVERRIDE;
 
 protected:
-    void paintEvent(QPaintEvent* evt);
     void keyPressEvent(QKeyEvent* evt);
     void wheelEvent(QWheelEvent* evt);
 

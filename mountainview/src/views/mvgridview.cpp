@@ -12,6 +12,7 @@
 #include <QScrollArea>
 #include "actionfactory.h"
 #include <QScrollBar>
+#include "viewimageexporter.h"
 
 class ViewWrap : public QWidget {
 public:
@@ -187,8 +188,14 @@ void MVGridView::slot_grid_properties()
 
 void MVGridView::slot_export_image()
 {
-    QImage img = this->renderImage();
-    user_save_image(img);
+    qDebug() << Q_FUNC_INFO;
+//    QImage img = this->renderImage();
+//    user_save_image(img);
+    ViewImageExporter exporter;
+    QDialog *dialog = exporter.createViewExportDialog(this, this);
+    dialog->exec();
+    delete dialog;
+    return;
 }
 
 void MVGridView::slot_zoom_out(double factor)
@@ -424,6 +431,11 @@ QImage MVGridView::renderImage(int W, int H)
     }
 
     return ret;
+}
+
+MVAbstractView::ViewFeatures MVGridView::viewFeatures() const
+{
+    return RenderView;
 }
 
 void MVGridView::renderView(QPainter *painter, const QRectF &rect)

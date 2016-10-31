@@ -258,9 +258,6 @@ QImage HistogramView::renderImage(int W, int H)
 
 void HistogramView::renderView(QPainter *painter, const QRectF &rect)
 {
-
-//    painter.setFont(this->font());
-
     bool selected = d->m_selected;
     bool hovered = d->m_hovered;
     bool current = d->m_current;
@@ -270,9 +267,10 @@ void HistogramView::renderView(QPainter *painter, const QRectF &rect)
     d->m_hovered = false;
     d->m_hovered_bin_index = -1;
     d->m_current = false;
-
+    painter->save();
+    painter->translate(rect.topLeft());
     d->do_paint(*painter, rect.width(), rect.height());
-
+    painter->restore();
     d->m_selected = selected;
     d->m_hovered = hovered;
     d->m_hovered_bin_index = hovered_bin_index;
@@ -674,7 +672,7 @@ void HistogramViewPrivate::do_paint(QPainter& painter, int W, int H)
     if (!m_title.isEmpty()) {
         //int text_height = 14;
         QFont font = painter.font();
-        QRect R(m_margin_left, 5, W - m_margin_left - m_margin_right, font.pixelSize());
+        QRect R(m_margin_left, 5, W - m_margin_left - m_margin_right, painter.fontMetrics().height());
 
         font.setFamily("Arial");
         //font.setPixelSize(text_height);

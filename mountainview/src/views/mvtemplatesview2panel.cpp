@@ -129,11 +129,11 @@ void MVTemplatesView2Panel::paint(QPainter* painter)
     //TOP SECTION
     {
         QString txt = d->m_title;
-        QFont fnt = this->font();
-        QRectF R(5, 3, ss.width() - 10, fnt.pixelSize());
+        QFont fnt = painter->font();
+        QRectF R(5, 3, ss.width() - 10, painter->fontMetrics().height());
         //fnt.setPixelSize(qMin(16.0, qMax(10.0, qMin(d->m_top_section_height, ss.width() * 1.0) - 4)));
         //fnt.setPixelSize(14);
-        painter->setFont(fnt);
+//        painter->setFont(fnt);
 
         QPen pen = painter->pen();
         pen.setColor(d->m_colors["cluster_label"]);
@@ -164,6 +164,8 @@ void MVTemplatesView2Panel::paint(QPainter* painter)
     int M = d->m_template.N1();
     int T = d->m_template.N2();
     d->m_clip_size = T;
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
     for (int m = 0; m < M; m++) {
         QPainterPath path;
         for (int t = 0; t < T; t++) {
@@ -187,6 +189,7 @@ void MVTemplatesView2Panel::paint(QPainter* painter)
         if (true)
             painter->drawEllipse(box);
     }
+    painter->restore();
 }
 
 double estimate_spacing(const QList<QVector<double> >& coords)

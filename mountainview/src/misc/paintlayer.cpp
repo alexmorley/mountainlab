@@ -95,6 +95,21 @@ QImage PaintLayerWidget::renderImage(int W, int H)
     return img;
 }
 
+void PaintLayerWidget::renderView(QPainter *painter, const QRectF &rect)
+{
+    painter->save();
+    painter->translate(rect.topLeft());
+    QSize hold_size = d->m_paint_layer->windowSize();
+    d->m_paint_layer->setFont(this->font());
+    d->m_paint_layer->setWindowSize(QSize(rect.width(), rect.height()));
+    bool hold_export_mode = d->m_paint_layer->exportMode();
+    d->m_paint_layer->setExportMode(this->exportMode());
+    d->m_paint_layer->paint(painter);
+    d->m_paint_layer->setExportMode(hold_export_mode);
+    d->m_paint_layer->setWindowSize(hold_size);
+    painter->restore();
+}
+
 void PaintLayerWidget::paintEvent(QPaintEvent* evt)
 {
     Q_UNUSED(evt);

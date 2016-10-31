@@ -304,13 +304,6 @@ void MVSpikeSprayView::loadStaticView(const QJsonObject& X)
     this->recalculate();
 }
 
-void MVSpikeSprayView::paintEvent(QPaintEvent* evt)
-{
-    Q_UNUSED(evt)
-
-    QPainter painter(this);
-}
-
 void MVSpikeSprayView::keyPressEvent(QKeyEvent* evt)
 {
     if (evt->key() == Qt::Key_Up) {
