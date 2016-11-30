@@ -53,7 +53,7 @@ public slots:
     MVAbstractContext* mvContext();
 
     virtual ViewFeatures viewFeatures() const;
-    virtual void renderView(QPainter* painter, const QRectF &destRect = QRectF()); // add render opts
+    virtual void renderView(QPainter* painter, const QVariantMap &options, const QRectF &destRect = QRectF()); // add render opts
 
 signals:
     void calculationStarted();

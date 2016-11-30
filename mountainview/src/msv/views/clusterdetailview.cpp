@@ -20,13 +20,16 @@
 #include <QImageWriter>
 #include "extract_clips.h"
 #include <QApplication>
+#include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QMenu>
 #include <QMessageBox>
 #include <QTimer>
+#include <QVBoxLayout>
 #include "viewimageexporter.h"
+#include "viewpropertyeditor.h"
 #include "compute_templates_0.h"
 #include "mountainprocessrunner.h"
 #include <math.h>
@@ -682,12 +685,33 @@ void ClusterDetailView::slot_update_sort_order()
 
 void ClusterDetailView::slot_view_properties()
 {
+#if 0
     ClusterDetailViewPropertiesDialog dlg;
     dlg.setProperties(d->m_properties);
     if (dlg.exec() == QDialog::Accepted) {
         d->m_properties = dlg.properties();
         this->update();
     }
+#else
+    QDialog dialog;
+    QVBoxLayout *l = new QVBoxLayout(&dialog);
+    ViewPropertyEditor *editor = new ViewPropertyEditor;
+    l->addWidget(editor);
+    QDialogButtonBox *bbox = new QDialogButtonBox(QDialogButtonBox::Save|QDialogButtonBox::Cancel, Qt::Horizontal);
+    l->addWidget(bbox);
+    connect(bbox, SIGNAL(accepted()), &dialog, SLOT(accept()));
+    connect(bbox, SIGNAL(rejected()), &dialog, SLOT(reject()));
+    editor->addProperty("size", QVariant(QSize(2000,800)));
+    editor->addProperty("font size", QVariant((int)12));
+    if(dialog.exec()) {
+        qDebug() << Q_FUNC_INFO;
+        QVariantMap values = editor->values();
+        d->m_properties.export_image_width = values["size"].toSize().width();
+        d->m_properties.export_image_height = values["size"].toSize().height();
+        d->m_properties.cluster_number_font_size = values["font size"].toInt();
+        update();
+    }
+#endif
 }
 
 MVAbstractView::ViewFeatures ClusterDetailView::viewFeatures() const
@@ -695,7 +719,7 @@ MVAbstractView::ViewFeatures ClusterDetailView::viewFeatures() const
     return RenderView;
 }
 
-void ClusterDetailView::renderView(QPainter *painter, const QRectF &rect)
+void ClusterDetailView::renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect)
 {
     if (isCalculating()) return;
     MVContext *ctx = qobject_cast<MVContext*>(mvContext());

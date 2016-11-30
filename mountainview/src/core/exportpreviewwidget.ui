@@ -40,8 +40,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>866</width>
-         <height>501</height>
+         <width>880</width>
+         <height>499</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -52,155 +52,7 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <widget class="QGroupBox" name="groupBox">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="title">
-           <string>Size</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout_2">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>Width:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QSpinBox" name="width">
-             <property name="minimum">
-              <number>100</number>
-             </property>
-             <property name="maximum">
-              <number>999999</number>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>Height:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="height">
-             <property name="minimum">
-              <number>100</number>
-             </property>
-             <property name="maximum">
-              <number>999999</number>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0" colspan="2">
-            <widget class="QCheckBox" name="aspect">
-             <property name="text">
-              <string>Preserve aspect ratio</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_2">
-          <property name="title">
-           <string>Export</string>
-          </property>
-          <layout class="QFormLayout" name="formLayout">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_3">
-             <property name="text">
-              <string>File type:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="fileType">
-             <item>
-              <property name="text">
-               <string>PNG</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>JPEG</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>BMP</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>PDF</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="fontGroup">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="title">
-           <string>Override fonts</string>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0">
-            <widget class="QWidget" name="widget" native="true">
-             <layout class="QGridLayout" name="gridLayout_2">
-              <item row="0" column="1">
-               <widget class="QFontComboBox" name="family">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QCheckBox" name="fontFamilyEnabled">
-                <property name="text">
-                 <string>Family:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QCheckBox" name="fontSizeEnabled">
-                <property name="text">
-                 <string>Size:</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QSpinBox" name="fontSize">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-          </layout>
-         </widget>
+         <widget class="ViewPropertyEditor" name="propertyBrowser" native="true"/>
         </item>
         <item>
          <widget class="QGroupBox" name="groupBox_3">
@@ -276,6 +128,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ViewPropertyEditor</class>
+   <extends>QWidget</extends>
+   <header>viewpropertyeditor.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
@@ -307,54 +167,6 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>fontGroup</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>widget</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>80</x>
-     <y>336</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>80</x>
-     <y>375</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>fontFamilyEnabled</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>family</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>50</x>
-     <y>348</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>152</x>
-     <y>348</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>fontSizeEnabled</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>fontSize</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>61</x>
-     <y>374</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>133</x>
-     <y>378</y>
     </hint>
    </hints>
   </connection>

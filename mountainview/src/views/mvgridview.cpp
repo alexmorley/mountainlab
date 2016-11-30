@@ -438,7 +438,7 @@ MVAbstractView::ViewFeatures MVGridView::viewFeatures() const
     return RenderView;
 }
 
-void MVGridView::renderView(QPainter *painter, const QRectF &rect)
+void MVGridView::renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect)
 {
     int W = rect.isNull() ? painter->device()->width()  : rect.width();
     int H = rect.isNull() ? painter->device()->height() : rect.height();
@@ -470,7 +470,7 @@ void MVGridView::renderView(QPainter *painter, const QRectF &rect)
         int y0 = spacingy + (H0 + spacingy) * row;
         const QRectF destRect = QRectF(rect.left()+x0, rect.top()+y0, W0, H0);
         painter->save();
-        W->renderView(painter, destRect);
+        W->renderView(painter, options, destRect);
         painter->restore();
         W->setExportMode(false);
         painter->save();

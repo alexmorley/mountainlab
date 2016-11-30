@@ -9,6 +9,8 @@ include(../../mlcommon/mlcommon.pri)
 include(../../mlcommon/mda.pri)
 include(../../mlcommon/taskprogress.pri)
 
+include(../../mountainview/src/3rdparty/qtpropertybrowser/qtpropertybrowser.pri)
+
 QT += widgets
 QT+=concurrent
 
@@ -20,8 +22,10 @@ TEMPLATE = app
 
 INCLUDEPATH += ../../mountainview/src/msv/plugins
 VPATH += ../../mountainview/src/msv/plugins
-HEADERS += clusterdetailplugin.h clipsviewplugin.h
-SOURCES += clusterdetailplugin.cpp clipsviewplugin.cpp
+HEADERS += clusterdetailplugin.h clipsviewplugin.h \
+    ../../mountainview/src/core/viewpropertyeditor.h
+SOURCES += clusterdetailplugin.cpp clipsviewplugin.cpp \
+    ../../mountainview/src/core/viewpropertyeditor.cpp
 
 INCLUDEPATH += ../../mountainview/src/msv/views
 VPATH += ../../mountainview/src/msv/views

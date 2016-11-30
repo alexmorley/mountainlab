@@ -11,6 +11,8 @@ include(../../mlcommon/mlcommon.pri)
 include(../../mlcommon/mda.pri)
 include(../../mlcommon/taskprogress.pri)
 
+include(3rdparty/qtpropertybrowser/qtpropertybrowser.pri)
+
 QT += widgets
 QT+=concurrent
 
@@ -40,7 +42,8 @@ HEADERS += clusterdetailplugin.h clusterdetailview.h \
     misc/renderablewidget.h \
     misc/jscounter.h \
     core/mvabstractcontext.h \
-    misc/renderable.h
+    misc/renderable.h \
+    core/viewpropertyeditor.h
 SOURCES += clusterdetailplugin.cpp clusterdetailview.cpp \
     clusterdetailviewpropertiesdialog.cpp \
     msv/views/matrixview.cpp \
@@ -58,7 +61,8 @@ SOURCES += clusterdetailplugin.cpp clusterdetailview.cpp \
     misc/renderablewidget.cpp \
     misc/jscounter.cpp \
     core/mvabstractcontext.cpp \
-    misc/renderable.cpp
+    misc/renderable.cpp \
+    core/viewpropertyeditor.cpp
 FORMS += clusterdetailviewpropertiesdialog.ui
 
 INCLUDEPATH += ../../prv-gui/src

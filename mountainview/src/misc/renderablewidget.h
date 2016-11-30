@@ -19,7 +19,7 @@ public:
     bool exportMode() const;
     virtual QImage renderImage(int W, int H) = 0;
 
-    virtual void renderView(QPainter *painter, const QRectF &rect);
+    virtual void renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect);
 private:
     RenderableWidgetPrivate* d;
 };

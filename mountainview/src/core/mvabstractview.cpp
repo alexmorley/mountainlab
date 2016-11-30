@@ -138,7 +138,7 @@ MVAbstractView::ViewFeatures MVAbstractView::viewFeatures() const
     return NoFeatures; // no features by default
 }
 
-void MVAbstractView::renderView(QPainter* painter, const QRectF &destRect)
+void MVAbstractView::renderView(QPainter* painter, const QVariantMap &options, const QRectF &destRect)
 {
     Q_UNUSED(painter)
     Q_UNUSED(destRect)

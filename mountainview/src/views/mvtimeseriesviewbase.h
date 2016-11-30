@@ -64,7 +64,7 @@ public:
 
     double amplitudeFactor() const;
 
-    void renderView(QPainter *painter, const QRectF & rect = QRectF());
+    void renderView(QPainter *painter, const QVariantMap &options, const QRectF & rect = QRectF());
 
 protected:
     void resizeEvent(QResizeEvent* evt);

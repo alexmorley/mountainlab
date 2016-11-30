@@ -95,7 +95,7 @@ QImage PaintLayerWidget::renderImage(int W, int H)
     return img;
 }
 
-void PaintLayerWidget::renderView(QPainter *painter, const QRectF &rect)
+void PaintLayerWidget::renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect)
 {
     painter->save();
     painter->translate(rect.topLeft());

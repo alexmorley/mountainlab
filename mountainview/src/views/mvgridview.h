@@ -29,7 +29,7 @@ public:
 
     QImage renderImage(int W = 0, int H = 0);
     ViewFeatures viewFeatures() const;
-    void renderView(QPainter *painter, const QRectF &rect = QRectF());
+    void renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect = QRectF());
 
 signals:
     void signalViewClicked(int index, Qt::KeyboardModifiers modifiers);

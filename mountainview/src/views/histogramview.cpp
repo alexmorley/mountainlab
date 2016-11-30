@@ -256,7 +256,7 @@ QImage HistogramView::renderImage(int W, int H)
     return ret;
 }
 
-void HistogramView::renderView(QPainter *painter, const QRectF &rect)
+void HistogramView::renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect)
 {
     bool selected = d->m_selected;
     bool hovered = d->m_hovered;
