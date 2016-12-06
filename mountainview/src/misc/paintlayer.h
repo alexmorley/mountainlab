@@ -53,7 +53,7 @@ public:
     PaintLayerWidget(PaintLayer* PL);
     virtual ~PaintLayerWidget();
     QImage renderImage(int W, int H) Q_DECL_OVERRIDE;
-    void renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect);
+    void renderView(QPainter *painter, const RenderOptionSet* options, const QRectF &rect);
 protected:
     void paintEvent(QPaintEvent* evt);
 

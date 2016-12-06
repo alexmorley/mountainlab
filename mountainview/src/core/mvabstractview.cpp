@@ -128,7 +128,7 @@ MVAbstractViewFactory* MVAbstractView::viewFactory() const
     return 0;
 }
 
-MVAbstractContext* MVAbstractView::mvContext()
+MVAbstractContext* MVAbstractView::mvContext() const
 {
     return d->m_context;
 }
@@ -138,9 +138,10 @@ MVAbstractView::ViewFeatures MVAbstractView::viewFeatures() const
     return NoFeatures; // no features by default
 }
 
-void MVAbstractView::renderView(QPainter* painter, const QVariantMap &options, const QRectF &destRect)
+void MVAbstractView::renderView(QPainter* painter, const RenderOptionSet* options, const QRectF &destRect)
 {
     Q_UNUSED(painter)
+    Q_UNUSED(options)
     Q_UNUSED(destRect)
     // do nothing in the base class
 }

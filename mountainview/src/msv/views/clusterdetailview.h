@@ -70,6 +70,7 @@ private:
 public:
     ViewFeatures viewFeatures() const override;
     void renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect = QRectF()) override;
+    RenderOptionSet* renderOptions() const;
 };
 
 #endif // MVCLUSTERDETAILWIDGET_H

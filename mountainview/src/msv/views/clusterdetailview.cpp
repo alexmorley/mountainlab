@@ -81,7 +81,7 @@ public:
 
 class ClusterDetailView;
 class ClusterDetailViewPrivate;
-class ClusterView {
+class ClusterView : public Renderable {
 public:
     friend class ClusterDetailViewPrivate;
     friend class ClusterDetailView;
@@ -98,6 +98,7 @@ public:
     bool stdevShading();
 
     void paint(QPainter* painter, QRectF rect, bool render_image_mode = false);
+    void renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect = QRectF());
     double spaceNeeded();
     ClusterData* clusterData();
     QRectF rect();
@@ -853,6 +854,18 @@ void ClusterDetailView::renderView(QPainter *painter, const QVariantMap &options
     this->update(); //make sure we update, because some internal stuff has changed!
 }
 
+RenderOptionSet *ClusterDetailView::renderOptions() const
+{
+    RenderOptionSet *set = optionSet("ClusterDetailView");
+    set->addOption<QColor>("Background", Qt::transparent);
+    set->addOption<QFont>("Font", font());
+    RenderOptionSet *panelSet = set->addSubSet("Panel");
+    RenderOption<int> *strokeWidth = panelSet->addOption<int>("Stroke width", 1);
+    strokeWidth->setAttribute("minimum", 0);
+    strokeWidth->setAttribute("maximum", 4);
+    return set;
+}
+
 void ClusterDetailViewPrivate::compute_total_time()
 {
     MVContext* c = qobject_cast<MVContext*>(q->mvContext());
@@ -1125,6 +1138,191 @@ void ClusterView::paint(QPainter* painter, QRectF rect, bool render_image_mode)
             QPen pen;
             pen.setWidth(1);
             pen.setColor(c->color("info_text"));
+            painter->setFont(font);
+            painter->setPen(pen);
+        txt = painter->fontMetrics().elidedText(txt, Qt::ElideRight, RR.width());
+            painter->drawText(RR, Qt::AlignCenter | Qt::AlignBottom, txt);
+        }
+
+    painter->save();
+        {
+            QPen pen;
+            pen.setWidth(1);
+            RR = QRectF(m_bottom_rect.x(), m_bottom_rect.y() + m_bottom_rect.height() - text_height * 2, m_bottom_rect.width(), text_height);
+            double rate = m_CD.num_events * 1.0 / d->m_total_time_sec;
+            pen.setColor(get_firing_rate_text_color(rate));
+            if (!compressed_info)
+                txt = QString("%1 sp/sec").arg(QString::number(rate, 'g', 2));
+            else
+                txt = QString("%1").arg(QString::number(rate, 'g', 2));
+//        painter->setFont(font);
+            painter->setPen(pen);
+            painter->drawText(RR, Qt::AlignCenter | Qt::AlignBottom, txt);
+        }
+    painter->restore();
+    painter->save();
+        {
+            QPen pen;
+            pen.setWidth(1);
+            RR = QRectF(m_bottom_rect.x(), m_bottom_rect.y() + m_bottom_rect.height() - text_height * 3, m_bottom_rect.width(), text_height);
+            QJsonArray aa = m_attributes["tags"].toArray();
+            QStringList aa_strlist = jsonarray2stringlist(aa);
+            txt = aa_strlist.join(" ");
+//        painter->setFont(font);
+            painter->setPen(pen);
+            painter->drawText(RR, Qt::AlignCenter | Qt::AlignBottom, txt);
+        }
+    painter->restore();
+    }
+}
+
+void ClusterView::renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect)
+{
+    int xmargin = 1;
+    int ymargin = 8;
+    QRectF rect2(rect.x() + xmargin, rect.y() + ymargin, rect.width() - xmargin * 2, rect.height() - ymargin * 2);
+    painter->setClipRect(rect, Qt::IntersectClip);
+
+    QColor background_color = q->mvContext()->color("view_background");
+    if (m_highlighted)
+        background_color = q->mvContext()->color("view_background_highlighted");
+    else if (m_selected)
+        background_color = q->mvContext()->color("view_background_selected");
+    else if (m_hovered)
+        background_color = q->mvContext()->color("view_background_hovered");
+      background_color = options["Background"].value<QColor>();
+//    painter->fillRect(rect, QColor(220, 220, 225));
+//    painter->fillRect(rect2, background_color);
+
+    QPen pen_frame;
+    pen_frame.setWidth(1);
+//    if (render_image_mode)
+//        pen_frame.setWidth(2);
+    if (m_selected)
+        pen_frame.setColor(q->mvContext()->color("view_frame_selected"));
+    else
+        pen_frame.setColor(q->mvContext()->color("view_frame"));
+//    if (render_image_mode)
+//        pen_frame.setColor(Qt::white);
+    painter->setPen(pen_frame);
+    painter->drawRect(rect2);
+
+    Mda32 template0 = m_CD.template0;
+    Mda32 stdev0 = m_CD.stdev0;
+    int M = template0.N1();
+    int T = template0.N2();
+    int Tmid = (int)((T + 1) / 2) - 1;
+    m_T = T;
+
+    int top_height = painter->fontMetrics().height(), bottom_height = 60;
+//    int top_height = 10 + d->m_properties.cluster_number_font_size, bottom_height = 60;
+//    if (render_image_mode)
+//        bottom_height = 20;
+    m_rect = rect;
+    m_top_rect = QRectF(rect2.x(), rect2.y()+1, rect2.width(), top_height);
+    m_template_rect = QRectF(rect2.x(), rect2.y() + top_height, rect2.width(), rect2.height() - bottom_height - top_height);
+    m_bottom_rect = QRectF(rect2.x(), rect2.y() + rect2.height() - bottom_height, rect2.width(), bottom_height);
+
+    {
+        //the midline
+        QColor midline_color = lighten(background_color, 0.9);
+        QPointF pt0 = template_coord2pix(0, Tmid, 0);
+        QPen pen;
+        pen.setWidth(1);
+        pen.setColor(midline_color);
+        painter->setPen(pen);
+        painter->drawLine(pt0.x(), rect2.bottom() - bottom_height, pt0.x(), rect2.top() + top_height);
+    }
+
+    for (int m = 0; m < M; m++) {
+        QColor col = q->mvContext()->channelColor(m);
+        QPen pen;
+        pen.setWidth(1);
+        pen.setColor(col);
+//        if (render_image_mode)
+//            pen.setWidth(3);
+        painter->setPen(pen);
+        if (d->m_stdev_shading) {
+            QColor quite_light_gray(200, 200, 205);
+            QPainterPath path;
+            for (int t = 0; t < T; t++) {
+                QPointF pt = template_coord2pix(m, t, template0.value(m, t) - stdev0.value(m, t));
+                if (t == 0)
+                    path.moveTo(pt);
+                else
+                    path.lineTo(pt);
+            }
+            for (int t = T - 1; t >= 0; t--) {
+                QPointF pt = template_coord2pix(m, t, template0.value(m, t) + stdev0.value(m, t));
+                path.lineTo(pt);
+            }
+            for (int t = 0; t <= 0; t++) {
+                QPointF pt = template_coord2pix(m, t, template0.value(m, t) - stdev0.value(m, t));
+                path.lineTo(pt);
+            }
+            painter->fillPath(path, QBrush(quite_light_gray));
+        }
+        painter->save();
+        painter->setClipRect(m_template_rect);
+        { // the template
+            painter->setRenderHint(QPainter::Antialiasing);
+            QPainterPath path;
+            for (int t = 0; t < T; t++) {
+                QPointF pt = template_coord2pix(m, t, template0.value(m, t));
+                if (t == 0)
+                    path.moveTo(pt);
+                else
+                    path.lineTo(pt);
+            }
+            painter->drawPath(path);
+        }
+        painter->restore();
+    }
+
+    QFont font = painter->font();
+    QString txt;
+    QRectF RR;
+
+    bool compressed_info = false;
+    if (rect2.width() < 60)
+        compressed_info = true;
+
+    // Group (or cluster) label
+    QString group_label = d->group_label_for_k(m_CD.k);
+    painter->save();
+    {
+        txt = QString("%1").arg(group_label);
+        //font.setPixelSize(16);
+        //if (compressed_info)
+        //font.setPixelSize(12);
+        //font.setPixelSize(d->m_properties.cluster_number_font_size);
+        QFont font = painter->font();
+        font.setPointSize(font.pointSize()+1);
+        painter->setFont(font);
+
+        txt = truncate_based_on_font_and_width(txt, font, m_top_rect.width());
+
+        QPen pen;
+        pen.setWidth(1);
+        pen.setColor(q->mvContext()->color("cluster_label"));
+//        painter->setFont(font);
+        painter->setPen(pen);
+
+        painter->drawText(m_top_rect, Qt::AlignCenter | Qt::AlignBottom, txt);
+    }
+    painter->restore();
+
+//    font.setPixelSize(11);
+    int text_height = painter->fontMetrics().height();
+
+    if (options["Render stats"].toBool()) {
+        // Stats at and tags at bottom
+        if (!compressed_info) {
+            RR = QRectF(m_bottom_rect.x(), m_bottom_rect.y() + m_bottom_rect.height() - text_height, m_bottom_rect.width(), text_height);
+            txt = QString("%1 spikes").arg(m_CD.num_events);
+            QPen pen;
+            pen.setWidth(1);
+            pen.setColor(q->mvContext()->color("info_text"));
             painter->setFont(font);
             painter->setPen(pen);
         txt = painter->fontMetrics().elidedText(txt, Qt::ElideRight, RR.width());

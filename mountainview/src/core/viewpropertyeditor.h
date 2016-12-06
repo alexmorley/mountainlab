@@ -2,7 +2,7 @@
 #define VIEWPROPERTYEDITOR_H
 
 #include <qttreepropertybrowser.h>
-
+#include <renderable.h>
 
 //class ViewProperty {
 //public:
@@ -22,6 +22,7 @@
 class QtVariantPropertyManager;
 class QtVariantEditorFactory;
 class QtVariantProperty;
+class QtProperty;
 class ViewPropertyEditor : public QWidget
 {
     Q_OBJECT
@@ -35,23 +36,30 @@ public:
 
     /* experimental API */
     void addProperty(const QString &propName, const QVariant &value, bool basic = true);
+    void addRenderOptions(RenderOptionSet *set);
+    void addRenderOptionsWithExtra(RenderOptionSet* main, RenderOptionSet *extra);
 
     QVariantMap values() const;
     void setValue(const QString &propName, const QVariant &value);
     QVariant value(const QString &propName) const;
 
     /* end of experimental API */
-
+public slots:
+    void apply();
 signals:
     void propertiesChanged();
 protected:
     void showEvent(QShowEvent *event);
     void relayoutProperties();
+    void addRenderOptions(RenderOptionSet *set, QtProperty *parent);
 private:
     QtVariantPropertyManager *m_propertyManager;
     QtVariantEditorFactory *m_editorFactory;
     QtTreePropertyBrowser *m_browser;
     QList<QtVariantProperty*> m_allProperties;
+    QMap<QtProperty*, RenderOptionBase*> m_options;
+    QMap<QtProperty*, RenderOptionSet*> m_sets;
+
 };
 
 #endif // VIEWPROPERTYEDITOR_H

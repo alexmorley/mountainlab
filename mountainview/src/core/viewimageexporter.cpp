@@ -119,7 +119,7 @@ namespace {
 class PreviewManager {
 public:
     virtual ~PreviewManager() {}
-    virtual QVariantMap renderOptions() const = 0;
+    virtual RenderOptionSet* renderOptions() const = 0;
     virtual void setupPainter(QPainter *painter) = 0;
 };
 
@@ -141,15 +141,16 @@ protected:
         QWidget::paintEvent(pe);
         if (!m_view) return;
         QPainter painter(this);
-        QVariantMap options;
+        RenderOptionSet* options = nullptr;
         if (m_manager) {
             m_manager->setupPainter(&painter);
             options = m_manager->renderOptions();
         }
         painter.save();
-        if (m_view->viewFeatures() & MVAbstractView::RenderView)
+        if (m_view->viewFeatures() & MVAbstractView::RenderView) {
+            qDebug() << "Trying to render the view";
             m_view->renderView(&painter, options);
-        else {
+        } else {
             qWarning() << "View" << m_view->metaObject()->className() << "didn't report renderView capabilities. Using fallback code path";
             m_view->render(&painter);
         }
@@ -161,7 +162,7 @@ private:
     PreviewManager *m_manager = nullptr;
 };
 
-class ExportPreviewDialog : public QDialog, public PreviewManager {
+class ExportPreviewDialog : public QDialog, public PreviewManager, private Renderable {
 public:
     ExportPreviewDialog(QWidget *parent = 0) : QDialog(parent), ui(new Ui::ExportPreviewWidget) {
         ui->setupUi(this);
@@ -171,44 +172,31 @@ public:
         ui->scrollArea->setWidgetResizable(false);
 
         propertyBrowser = ui->propertyBrowser;
-        propertyBrowser->addProperty("Background", QColor(Qt::transparent));
-        propertyBrowser->addProperty("Size", QVariant(QSize(2000,800)));
-        propertyBrowser->addProperty("Font", QVariant(QFont()));
 
         connect(propertyBrowser, &ViewPropertyEditor::propertiesChanged, [this]() {
+            propertyBrowser->apply();
             m_preview->resize(propertyBrowser->values()["Size"].toSize());
             m_preview->update();
         });
-//        connect(propertyBrowser, SIGNAL(propertiesChanged()), m_preview, SLOT(update()));
-//        StrokePropertyManager *strokePropManager = new StrokePropertyManager(this);
-//        StrokeEditorFactory *strokeFactory = new StrokeEditorFactory(this);
-
-        /*
-        QtVariantProperty *sizeGroup = propertyBrowser->propertyManager()->addProperty(QVariant::Size, "size");
-        QtVariantProperty *aspectProp = propertyBrowser->propertyManager()->addProperty(QVariant::Bool, "Preserve aspect ratio");
-        sizeGroup->addSubProperty(aspectProp);
-        QtVariantProperty *genericGroup = propertyBrowser->propertyManager()->addProperty(QtVariantPropertyManager::groupTypeId(), "Generic");
-        genericGroup->addSubProperty(sizeGroup);
-        propertyBrowser->addProperty(genericGroup);
-        QtVariantProperty *fontProp = propertyBrowser->propertyManager()->addProperty(QVariant::Font, "font");
-        genericGroup->addSubProperty(fontProp);
-        QtProperty *clusterGroup = propertyBrowser->propertyManager()->addProperty(QtVariantPropertyManager::groupTypeId(), "Cluster Panel");
-        propertyBrowser->addProperty(clusterGroup);
-//        propertyBrowser->setFactoryForManager(strokePropManager, strokeFactory);
-
-        QtProperty *strokeProp = propertyBrowser->propertyManager()->addProperty(QtVariantPropertyManager::groupTypeId(), "stroke");
-        QtVariantProperty *strokeWidth = propertyBrowser->propertyManager()->addProperty(QVariant::Int, "width");
-        strokeProp->addSubProperty(strokeWidth);
-        QtVariantProperty *aaProp = propertyBrowser->propertyManager()->addProperty(QVariant::Bool, "smooth");
-        strokeProp->addSubProperty(aaProp);
-        clusterGroup->addSubProperty(strokeProp);
-        */
     }
+
+    ~ExportPreviewDialog() {
+        delete m_options;
+    }
+
     void setView(MVAbstractView *view) {
+        qDebug() << Q_FUNC_INFO << view->metaObject()->className();
         m_view = view;
         m_preview->setView(view);
-        propertyBrowser->setValue("Size", m_view->size());
-        propertyBrowser->setValue("Font", m_view->font());
+        if (m_options) delete m_options;
+        m_options = view->renderOptions();
+        // first add export options
+        RenderOptionSet* exportSet = optionSet("Export");
+        exportSet->addOption<QSize>("Size", m_view->size());
+        exportSet->addOption<QColor>("Background", Qt::transparent);
+        propertyBrowser->addRenderOptionsWithExtra(m_options, exportSet);
+        m_preview->resize(propertyBrowser->values()["Size"].toSize());
+        m_preview->update();
     }
 
     void accept() {
@@ -257,8 +245,8 @@ public:
         QFont f = propertyBrowser->value("Font").value<QFont>();
         painter->setFont(f);
     }
-    QVariantMap renderOptions() const {
-        return propertyBrowser->values();
+    RenderOptionSet* renderOptions() const {
+        return m_options;
     }
 
 private:
@@ -266,6 +254,7 @@ private:
     MVAbstractView *m_view = nullptr;
     PreviewWidget *m_preview;
     ViewPropertyEditor *propertyBrowser;
+    RenderOptionSet *m_options = nullptr;
 };
 
 }

@@ -50,10 +50,10 @@ public slots:
     void neverSuggestRecalculate();
 
     virtual MVAbstractViewFactory* viewFactory() const;
-    MVAbstractContext* mvContext();
+    MVAbstractContext* mvContext() const;
 
     virtual ViewFeatures viewFeatures() const;
-    virtual void renderView(QPainter* painter, const QVariantMap &options, const QRectF &destRect = QRectF()); // add render opts
+    virtual void renderView(QPainter* painter, const RenderOptionSet* options, const QRectF &destRect = QRectF()); // add render opts
 
 signals:
     void calculationStarted();

@@ -43,7 +43,8 @@ HEADERS += clusterdetailplugin.h clusterdetailview.h \
     misc/jscounter.h \
     core/mvabstractcontext.h \
     misc/renderable.h \
-    core/viewpropertyeditor.h
+    core/viewpropertyeditor.h \
+    core/viewpropertiesdialog.h
 SOURCES += clusterdetailplugin.cpp clusterdetailview.cpp \
     clusterdetailviewpropertiesdialog.cpp \
     msv/views/matrixview.cpp \
@@ -62,7 +63,8 @@ SOURCES += clusterdetailplugin.cpp clusterdetailview.cpp \
     misc/jscounter.cpp \
     core/mvabstractcontext.cpp \
     misc/renderable.cpp \
-    core/viewpropertyeditor.cpp
+    core/viewpropertyeditor.cpp \
+    core/viewpropertiesdialog.cpp
 FORMS += clusterdetailviewpropertiesdialog.ui
 
 INCLUDEPATH += ../../prv-gui/src
