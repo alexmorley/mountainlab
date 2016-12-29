@@ -33,3 +33,9 @@ SUBDIRS += $$ifcomponent(prv-gui,prv-gui/src/prv-gui.pro)
 SUBDIRS += $$ifcomponent(mountainview-eeg,packages/mountainlab-eeg/mountainview-eeg/src/mountainview-eeg.pro)
 
 CONFIG(debug, debug|release) { SUBDIRS += tests }
+
+
+deb.target = deb
+deb.commands = debuild $(DEBUILD_OPTS) -us -uc
+
+QMAKE_EXTRA_TARGETS += deb
