@@ -56,3 +56,6 @@ RESOURCES += icons/qaccordionicons.qrc
 
 FORMS += \
     prvguiuploaddialog.ui prvguidownloaddialog.ui
+
+target.path=/bin
+INSTALLS += target

@@ -114,3 +114,5 @@ SOURCES += affinetransformation.cpp
 
 RESOURCES += ../../mountainview/src/mountainview.qrc \
             ../../mountainview/src/3rdparty/qaccordion/icons/qaccordionicons.qrc
+
+include(../../installbin.pri)

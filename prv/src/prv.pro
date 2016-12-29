@@ -16,3 +16,10 @@ SOURCES += prvmain.cpp \
 include(../../mlcommon/mlcommon.pri)
 include(../../mlcommon/mlnetwork.pri)
 include(../../mlcommon/taskprogress.pri)
+
+target.path=/bin
+INSTALLS += target
+
+AUX.files=bin/prv-create bin/prv-download
+AUX.path=/bin
+INSTALLS += AUX

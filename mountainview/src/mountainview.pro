@@ -205,3 +205,5 @@ FORMS += \
 DISTFILES += \
     msv/views/curationprogram.js
 
+target.path = /bin
+INSTALLS += target

@@ -19,3 +19,4 @@ SOURCES += mdaconvertmain.cpp \
 
 include(../../mlcommon/mlcommon.pri)
 include(../../mlcommon/mda.pri)
+include(../../installbin.pri)
