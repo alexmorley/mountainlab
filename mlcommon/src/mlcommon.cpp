@@ -773,7 +773,24 @@ QStringList MLUtil::configResolvedPathList(const QString& group, const QString& 
 
 QJsonValue MLUtil::configValue(const QString& group, const QString& key)
 {
-    QString json1 = TextFile::read(MLUtil::mountainlabBasePath() + "/mountainlab.default.json");
+    QString json1;
+#ifdef Q_OS_LINUX
+    /* lookup order:
+     * ~/.config/mountainlab/
+     * /etc/mountainlab/
+     * /usr/local/share/mountainlab/
+     * /usr/share/mountainlab/
+     */
+    /// TODO: Extend with QStandardPaths to make it platform independent
+    static const QStringList globalDirs = {
+        QDir::homePath()+"/.config/mountainlab",
+        "/etc/mountainlab", "/usr/local/share/mountainlab", "/usr/share/mountainlab"
+    };
+    for(int i = 0; i < globalDirs.size() && json1.isEmpty(); ++i)
+        json1 = TextFile::read(globalDirs.at(i) + "/mountainlab.default.json");
+#endif
+    if (json1.isEmpty())
+        json1 = TextFile::read(MLUtil::mountainlabBasePath() + "/mountainlab.default.json");
     QJsonParseError err1;
     QJsonObject obj1 = QJsonDocument::fromJson(json1.toUtf8(), &err1).object();
     if (err1.error != QJsonParseError::NoError) {
@@ -783,8 +800,26 @@ QJsonValue MLUtil::configValue(const QString& group, const QString& key)
         return QJsonValue();
     }
     QJsonObject obj2;
-    if (QFile::exists(MLUtil::mountainlabBasePath() + "/mountainlab.user.json")) {
-        QString json2 = TextFile::read(MLUtil::mountainlabBasePath() + "/mountainlab.user.json");
+    /* lookup order:
+     * ~/.config/mountainlab/
+     *
+     *
+     */
+    static const QStringList userDirs = {
+#ifdef Q_OS_LINUX
+        QDir::homePath()+"/.config/mountainlab",
+#endif
+        MLUtil::mountainlabBasePath()
+    };
+    QString json2;
+    for(int i = 0; i < userDirs.size() && json2.isEmpty(); ++i) {
+        if (!QFile::exists(userDirs.at(i) + "/mountainlab.user.json"))
+            continue;
+        json2 = TextFile::read(userDirs.at(i) + "/mountainlab.user.json");
+        // we want to break if the file exists, even if it is empty
+        break;
+    }
+    if (!json2.isEmpty()) {
         QJsonParseError err2;
         obj2 = QJsonDocument::fromJson(json2.toUtf8(), &err2).object();
         if (err2.error != QJsonParseError::NoError) {
