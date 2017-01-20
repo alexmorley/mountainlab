@@ -29,8 +29,8 @@ public:
 
     QImage renderImage(int W = 0, int H = 0);
     ViewFeatures viewFeatures() const;
-    void renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect = QRectF());
-
+    void renderView(QPainter *painter, const RenderOptionSet* options, const QRectF &rect = QRectF());
+    RenderOptionSet *renderOptions() const override;
 signals:
     void signalViewClicked(int index, Qt::KeyboardModifiers modifiers);
 
@@ -41,6 +41,7 @@ protected:
     void addView(RenderableWidget* W);
     int viewCount() const;
     RenderableWidget* view(int j) const;
+    void paintEvent(QPaintEvent*);
 
 private slots:
     void slot_zoom_out(double factor = 1.2);

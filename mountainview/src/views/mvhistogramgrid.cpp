@@ -71,19 +71,19 @@ MVHistogramGrid::~MVHistogramGrid()
     delete d;
 }
 
-void MVHistogramGrid::paintEvent(QPaintEvent* evt)
-{
-    QWidget::paintEvent(evt);
+//void MVHistogramGrid::paintEvent(QPaintEvent* evt)
+//{
+//    QWidget::paintEvent(evt);
 
     MVContext* c = qobject_cast<MVContext*>(mvContext());
     Q_ASSERT(c);
 
-    QPainter painter(this);
-    if (isCalculating()) {
-        //show that something is computing
-        painter.fillRect(QRectF(0, 0, width(), height()), c->color("calculation-in-progress"));
-    }
-}
+//    QPainter painter(this);
+//    if (isCalculating()) {
+//        //show that something is computing
+//        painter.fillRect(QRectF(0, 0, width(), height()), mvContext()->color("calculation-in-progress"));
+//    }
+//}
 
 void MVHistogramGrid::keyPressEvent(QKeyEvent* evt)
 {

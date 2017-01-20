@@ -13,6 +13,7 @@
 #include "actionfactory.h"
 #include <QScrollBar>
 #include "viewimageexporter.h"
+#include "viewpropertiesdialog.h"
 
 class ViewWrap : public QWidget {
 public:
@@ -51,6 +52,7 @@ public:
     QWidget* m_horizontal_scale_widget = 0;
     int m_current_view_index = 0;
     MVGridViewProperties m_properties;
+    RenderOptionSet *m_renderOptions = nullptr;
 
     void on_resize();
     void setup_grid(int num_cols);
@@ -134,6 +136,15 @@ RenderableWidget* MVGridView::view(int j) const
     return d->m_views[j];
 }
 
+void MVGridView::paintEvent(QPaintEvent *e)
+{
+    if (!d->m_renderOptions) {
+        // default options
+        d->m_renderOptions = renderOptions();
+    }
+    MVAbstractView::paintEvent(e);
+}
+
 void MVGridView::slot_zoom_in(double factor)
 {
     int hscroll_value = 0, vscroll_value = 0;
@@ -178,17 +189,34 @@ void MVGridView::slot_signal_view_clicked(int index, Qt::KeyboardModifiers)
 
 void MVGridView::slot_grid_properties()
 {
+#if 0
     MVGridViewPropertiesDialog dlg;
     dlg.setProperties(d->m_properties);
     if (dlg.exec() == QDialog::Accepted) {
         d->m_properties = dlg.properties();
         this->updateLayout();
     }
+#else
+    if (!d->m_renderOptions) {
+        // default options
+        d->m_renderOptions = renderOptions();
+    }
+    ViewPropertiesDialog dlg(this);
+    connect(&dlg, SIGNAL(applied()), this, SLOT(update()));
+    dlg.setRenderOptions(d->m_renderOptions);
+    if (dlg.exec()) {
+        //        QVariantMap values = editor->values();
+        //        d->m_properties.export_image_width = values["size"].toSize().width();
+        //        d->m_properties.export_image_height = values["size"].toSize().height();
+        //        d->m_properties.cluster_number_font_size = values["font size"].toInt();
+        //        d->m_viewOptions = values;
+        update();
+    }
+#endif
 }
 
 void MVGridView::slot_export_image()
 {
-    qDebug() << Q_FUNC_INFO;
 //    QImage img = this->renderImage();
 //    user_save_image(img);
     ViewImageExporter exporter;
@@ -196,6 +224,21 @@ void MVGridView::slot_export_image()
     dialog->exec();
     delete dialog;
     return;
+}
+
+RenderOptionSet *MVGridView::renderOptions() const
+{
+    RenderOptionSet* set = optionSet("Grid View");
+    RenderOptionSet* hist = set->addSubSet("Panel");
+    hist->addOption<bool>("Fixed size panel", false);
+    hist->addOption<QSize>("Fixed size", QSize(600, 350));
+    hist->addOption<bool>("Fixed number of columns", false);
+    hist->addOption<int>("Number of columns", 5);
+
+    RenderOptionSet* extra = optionSet("Extra");
+    extra->addOption<QFont>("Font", font());
+    set->setExtension(extra);
+    return set;
 }
 
 void MVGridView::slot_zoom_out(double factor)
@@ -438,7 +481,7 @@ MVAbstractView::ViewFeatures MVGridView::viewFeatures() const
     return RenderView;
 }
 
-void MVGridView::renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect)
+void MVGridView::renderView(QPainter *painter, const RenderOptionSet *options, const QRectF &rect)
 {
     int W = rect.isNull() ? painter->device()->width()  : rect.width();
     int H = rect.isNull() ? painter->device()->height() : rect.height();
@@ -452,10 +495,22 @@ void MVGridView::renderView(QPainter *painter, const QVariantMap &options, const
         max_col = qMax(max_col, col);
     }
     int NR = max_row + 1, NC = max_col + 1;
+#if 1
+    const RenderOptionSet* histOptions = options->subSet("Panel");
+    if (histOptions && histOptions->option("Fixed size panel")) {
+        bool use_fixed_panel_size = histOptions->option("Fixed size panel")->value().toBool();
+        if (use_fixed_panel_size && histOptions->option("Fixed size")) {
+            const QSize fS = histOptions->option("Fixed size")->value().toSize();
+            W = fS.width() * NC;
+            H = fS.height() * NR;
+        }
+    }
+#else
     if (d->m_properties.use_fixed_panel_size) {
         W = d->m_properties.fixed_panel_width * NC;
         H = d->m_properties.fixed_panel_height * NR;
     }
+#endif
     int spacingx = (W / NC) * 0.1; // 10% of cell width
     int spacingy = (H / NR) * 0.1; // 10% of cell height
     int W0 = (W - spacingx * (NC + 1)) / NC; // real cell width
@@ -470,7 +525,8 @@ void MVGridView::renderView(QPainter *painter, const QVariantMap &options, const
         int y0 = spacingy + (H0 + spacingy) * row;
         const QRectF destRect = QRectF(rect.left()+x0, rect.top()+y0, W0, H0);
         painter->save();
-        W->renderView(painter, options, destRect);
+        qDebug() << "Rendering" << W->metaObject()->className();
+        W->renderView(painter, options->subSet("Panel"), destRect);
         painter->restore();
         W->setExportMode(false);
         painter->save();

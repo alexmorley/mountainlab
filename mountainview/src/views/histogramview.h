@@ -50,7 +50,7 @@ public:
     void setSelected(bool val); // Set this as among the selected histograms (affects highlighting)
 
     QImage renderImage(int W, int H) Q_DECL_OVERRIDE;
-    void renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect = QRectF());
+    void renderView(QPainter *painter, const RenderOptionSet *options, const QRectF &rect = QRectF()) override;
 
 protected:
     void paintEvent(QPaintEvent* evt);

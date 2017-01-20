@@ -26,7 +26,7 @@ public:
     MVHistogramGrid(MVAbstractContext* context);
     virtual ~MVHistogramGrid();
 
-    void paintEvent(QPaintEvent* evt);
+//    void paintEvent(QPaintEvent* evt);
     void keyPressEvent(QKeyEvent* evt);
 signals:
 

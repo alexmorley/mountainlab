@@ -305,6 +305,16 @@ void MVCrossCorrelogramsWidget3::slot_export_static_view()
     }
 }
 
+RenderOptionSet *MVCrossCorrelogramsWidget3::renderOptions() const
+{
+    RenderOptionSet* set = MVHistogramGrid::renderOptions();
+//    RenderOptionSet* hist = const_cast<RenderOptionSet*>(set->subSet("Histogram"));
+
+//    RenderOptionSet* extra = set->extension();
+
+    return set;
+}
+
 double pseudorandomnumber(double i)
 {
     double ret = sin(i + cos(i));

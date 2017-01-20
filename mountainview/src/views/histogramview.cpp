@@ -6,6 +6,10 @@
 #include "mlcommon.h"
 #include <QMenu>
 
+QVector<double> sum(const QVector<double>& V1, const QVector<double>& V2);
+QColor modify_color_for_second_histogram2(QColor col);
+QColor lighten2(QColor col, int dr, int dg, int db);
+
 struct BinInfo {
     double bin_min = -1;
     double bin_max = 1;
@@ -256,7 +260,7 @@ QImage HistogramView::renderImage(int W, int H)
     return ret;
 }
 
-void HistogramView::renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect)
+void HistogramView::renderView(QPainter *painter, const RenderOptionSet* options, const QRectF &rect)
 {
     bool selected = d->m_selected;
     bool hovered = d->m_hovered;
@@ -269,7 +273,147 @@ void HistogramView::renderView(QPainter *painter, const QVariantMap &options, co
     d->m_current = false;
     painter->save();
     painter->translate(rect.topLeft());
+#if 0
     d->do_paint(*painter, rect.width(), rect.height());
+#else
+    //d->m_colors["view_background"]=QColor(245,245,245);
+    //d->m_colors["view_background_highlighted"]=QColor(250,220,200);
+    //d->m_colors["view_background_hovered"]=QColor(240,245,240);
+
+    //	QColor hover_color=QColor(150,150,150,80);
+    //	QColor current_color=QColor(150,200,200,80);
+    //	QColor hover_current_color=QColor(170,200,200,80);
+
+    int margin_bottom = d->m_margin_bottom;
+//    if (q->exportMode())
+//        margin_bottom = qMax(margin_bottom, H / 10);
+
+    QRect R(0, 0, rect.width(), rect.height());
+
+//    if (!q->exportMode()) {
+//        if (m_current) {
+//            painter.fillRect(R, m_colors["view_background_highlighted"]);
+//        }
+//        else if (m_selected) {
+//            painter.fillRect(R, m_colors["view_background_selected"]);
+//        }
+//        else if (m_hovered) {
+//            painter.fillRect(R, m_colors["view_background_hovered"]);
+//        }
+//        else {
+//            painter.fillRect(R, m_colors["view_background"]);
+//        }
+
+//        if (m_selected) {
+//            painter.setPen(QPen(m_colors["view_frame_selected"], 2));
+//        }
+//        else {
+//            painter.setPen(QPen(m_colors["view_frame"], 1));
+//        }
+//        painter.drawRect(R);
+//    }
+
+    if (d->m_update_required) {
+        d->update_bin_counts();
+        d->m_update_required = false;
+    }
+
+    int num_bins = d->m_bin_lefts.count();
+    if (num_bins < 2)
+        return;
+
+    for (int pass = 0; pass <= 2; pass++) {
+        QVector<double> bin_densities;
+        QColor col, line_color;
+        if (pass == 0) {
+            bin_densities = sum(d->m_bin_densities, d->m_second_bin_densities);
+            col = Qt::gray;
+            line_color = Qt::gray;
+        }
+        else if (pass == 1) {
+            bin_densities = d->m_bin_densities;
+            col = d->m_fill_color;
+            line_color = d->m_line_color;
+        }
+        else if (pass == 2) {
+            bin_densities = d->m_second_bin_densities;
+            col = modify_color_for_second_histogram2(d->m_fill_color);
+            line_color = modify_color_for_second_histogram2(d->m_line_color);
+        }
+
+        for (int i = 0; i < num_bins; i++) {
+            QPointF pt1 = d->coord2pix(QPointF(d->m_bin_lefts[i], 0), rect.width(), rect.height());
+            QPointF pt2 = d->coord2pix(QPointF(d->m_bin_rights[i], bin_densities[i]), rect.width(), rect.height());
+            QRectF R = QRectF(pt1, pt2).normalized();
+            if (i == d->m_hovered_bin_index)
+                painter->fillRect(R, lighten2(col, 25, 25, 25));
+            else
+                painter->fillRect(R, col);
+            painter->setPen(line_color);
+            painter->drawRect(R);
+        }
+    }
+
+    if (d->m_draw_vertical_axis_at_zero) {
+        QPointF pt0 = d->coord2pix(QPointF(0, 0));
+        QPointF pt1 = d->coord2pix(QPointF(0, d->m_max_bin_density));
+        QPen pen = painter->pen();
+        pen.setColor(Qt::black);
+        pen.setStyle(Qt::SolidLine);
+        painter->setPen(pen);
+        painter->drawLine(pt0, pt1);
+    }
+
+    foreach (double val, d->m_vertical_lines) {
+        QPointF pt0 = d->coord2pix(QPointF(val, 0));
+        QPointF pt1 = d->coord2pix(QPointF(val, d->m_max_bin_density));
+        QPen pen = painter->pen();
+        pen.setColor(Qt::gray);
+        pen.setStyle(Qt::DashLine);
+        painter->setPen(pen);
+        painter->drawLine(pt0, pt1);
+    }
+
+    foreach (double val, d->m_tick_marks) {
+        QPointF pt0 = d->coord2pix(QPointF(val, 0));
+        QPointF pt1 = pt0;
+        pt1.setY(pt1.y() + 5);
+        QPen pen = painter->pen();
+        pen.setColor(Qt::black);
+        pen.setStyle(Qt::SolidLine);
+        painter->setPen(pen);
+        painter->drawLine(pt0, pt1);
+    }
+
+    if (!d->m_title.isEmpty()) {
+        //int text_height = 14;
+        QFont font = painter->font();
+        QRect R(d->m_margin_left, 5, rect.width() - d->m_margin_left - d->m_margin_right, painter->fontMetrics().height());
+        if (options->option("Font")) {
+            font = options->option("Font")->value().value<QFont>();
+        } else {
+            font.setFamily("Arial");
+        }
+        //font.setPixelSize(text_height);
+        painter->setFont(font);
+        painter->setPen(Qt::darkGray);
+        painter->drawText(R, d->m_title, Qt::AlignLeft | Qt::AlignTop);
+    }
+    if ((!d->m_caption.isEmpty()) && (d->m_draw_caption)) {
+        int caption_height = 9;
+        if (!d->m_draw_caption)
+            caption_height = 0;
+
+        //int text_height = 11;
+        QRect R(0, rect.height() - margin_bottom - caption_height, rect.width(), margin_bottom + caption_height);
+        QFont font = painter->font();
+        font.setFamily("Arial");
+        //font.setPixelSize(text_height);
+        painter->setFont(font);
+        painter->setPen(Qt::darkGray);
+        painter->drawText(R, d->m_caption, Qt::AlignCenter | Qt::AlignVCenter);
+    }
+#endif
     painter->restore();
     d->m_selected = selected;
     d->m_hovered = hovered;
@@ -279,6 +423,7 @@ void HistogramView::renderView(QPainter *painter, const QVariantMap &options, co
 
 QRectF make_rect2(QPointF p1, QPointF p2)
 {
+    qWarning() << Q_FUNC_INFO << "deprecated. Use QRectF(p1, p2).normalized() instead.";
     double x = qMin(p1.x(), p2.x());
     double y = qMin(p1.y(), p2.y());
     double w = qAbs(p2.x() - p1.x());
@@ -628,7 +773,7 @@ void HistogramViewPrivate::do_paint(QPainter& painter, int W, int H)
         for (int i = 0; i < num_bins; i++) {
             QPointF pt1 = coord2pix(QPointF(m_bin_lefts[i], 0), W, H);
             QPointF pt2 = coord2pix(QPointF(m_bin_rights[i], bin_densities[i]), W, H);
-            QRectF R = make_rect2(pt1, pt2);
+            QRectF R = QRectF(pt1, pt2).normalized();
             if (i == m_hovered_bin_index)
                 painter.fillRect(R, lighten2(col, 25, 25, 25));
             else

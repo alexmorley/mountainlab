@@ -57,6 +57,10 @@ private slots:
 
 private:
     MVCrossCorrelogramsWidget3Private* d;
+
+    // Renderable interface
+public:
+    RenderOptionSet *renderOptions() const override;
 };
 
 class MVAutoCorrelogramsFactory : public MVAbstractViewFactory {
