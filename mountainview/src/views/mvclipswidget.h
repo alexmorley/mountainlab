@@ -29,7 +29,7 @@ public:
 
     void paintEvent(QPaintEvent* evt);
 
-    void renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect = QRectF()) override;
+    void renderView(QPainter *painter, const RenderOptionSet* options, const QRectF &rect = QRectF()) override;
 
 signals:
 private slots:
