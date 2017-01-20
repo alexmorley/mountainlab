@@ -69,7 +69,7 @@ private:
 
 public:
     ViewFeatures viewFeatures() const override;
-    void renderView(QPainter *painter, const QVariantMap &options, const QRectF &rect = QRectF()) override;
+    void renderView(QPainter *painter, const RenderOptionSet* options, const QRectF &rect = QRectF()) override;
     RenderOptionSet* renderOptions() const;
 };
 
