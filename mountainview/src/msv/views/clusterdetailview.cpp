@@ -729,7 +729,7 @@ MVAbstractView::ViewFeatures ClusterDetailView::viewFeatures() const
 void ClusterDetailView::renderView(QPainter *painter, const RenderOptionSet *options, const QRectF &rect)
 {
 //    if (isCalculating()) return;
-//    MVContext *ctx = qobject_cast<MVContext*>(mvContext());
+    MVContext *ctx = qobject_cast<MVContext*>(mvContext());
 //    int current_k = ctx->currentCluster();
 //    QList<int> selected_ks = ctx->selectedClusters();
 //    ctx->setCurrentCluster(-1);
@@ -872,7 +872,7 @@ void ClusterDetailView::renderView(QPainter *painter, const RenderOptionSet *opt
 RenderOptionSet *ClusterDetailView::renderOptions() const
 {
     RenderOptionSet *set = optionSet("ClusterDetailView");
-
+    MVContext *ctx = qobject_cast<MVContext*>(mvContext());
     RenderOptionSet *panelSet = set->addSubSet("Panel");
     RenderOption<int> *strokeWidth = panelSet->addOption<int>("Stroke width", 1);
     strokeWidth->setAttribute("minimum", 0);
@@ -880,7 +880,7 @@ RenderOptionSet *ClusterDetailView::renderOptions() const
     RenderOption<int> *frameWidth = panelSet->addOption<int>("Frame width", 1);
     frameWidth->setAttribute("minimum", 0);
     frameWidth->setAttribute("maximum", 4);
-    RenderOption<QColor>* frameColor = panelSet->addOption<QColor>("Frame color", mvContext()->color("view_frame"));
+    RenderOption<QColor>* frameColor = panelSet->addOption<QColor>("Frame color", ctx->color("view_frame"));
     panelSet->addOption<bool>("Render stats", true);
 
     RenderOptionSet* ext = optionSet("Extension");
@@ -1204,6 +1204,7 @@ void ClusterView::renderView(QPainter *painter, const RenderOptionSet *options, 
 {
     int xmargin = 1;
     int ymargin = 8;
+    MVContext *ctx = qobject_cast<MVContext*>(q->mvContext());
     if (options->option("Font")) {
         QFont font = options->option("Font")->value().value<QFont>();
 //        QFont font = painter->font();
@@ -1213,13 +1214,13 @@ void ClusterView::renderView(QPainter *painter, const RenderOptionSet *options, 
     QRectF rect2(rect.x() + xmargin, rect.y() + ymargin, rect.width() - xmargin * 2, rect.height() - ymargin * 2);
     painter->setClipRect(rect, Qt::IntersectClip);
 
-    QColor background_color = q->mvContext()->color("view_background");
+    QColor background_color = ctx->color("view_background");
     if (m_highlighted)
-        background_color = q->mvContext()->color("view_background_highlighted");
+        background_color = ctx->color("view_background_highlighted");
     else if (m_selected)
-        background_color = q->mvContext()->color("view_background_selected");
+        background_color = ctx->color("view_background_selected");
     else if (m_hovered)
-        background_color = q->mvContext()->color("view_background_hovered");
+        background_color = ctx->color("view_background_hovered");
       background_color = options->option("Background")->value().value<QColor>();
 //    painter->fillRect(rect, QColor(220, 220, 225));
     painter->fillRect(rect2, background_color); // or shouldn't it?
@@ -1229,9 +1230,9 @@ void ClusterView::renderView(QPainter *painter, const RenderOptionSet *options, 
     if (options->option("Frame width"))
         pen_frame.setWidth(options->option("Frame width")->value().toInt());
     if (m_selected)
-        pen_frame.setColor(q->mvContext()->color("view_frame_selected"));
+        pen_frame.setColor(ctx->color("view_frame_selected"));
     else
-        pen_frame.setColor(q->mvContext()->color("view_frame"));
+        pen_frame.setColor(ctx->color("view_frame"));
     if (options->option("Frame color")) {
         pen_frame.setColor(options->option("Frame color")->value().value<QColor>());
     }
@@ -1274,7 +1275,7 @@ void ClusterView::renderView(QPainter *painter, const RenderOptionSet *options, 
     }
 
     for (int m = 0; m < M; m++) {
-        QColor col = q->mvContext()->channelColor(m);
+        QColor col = ctx->channelColor(m);
         QPen pen;
         pen.setWidth(1);
         pen.setColor(col);
@@ -1344,7 +1345,7 @@ void ClusterView::renderView(QPainter *painter, const RenderOptionSet *options, 
 
         QPen pen;
         pen.setWidth(1);
-        pen.setColor(q->mvContext()->color("cluster_label"));
+        pen.setColor(ctx->color("cluster_label"));
 //        painter->setFont(font);
         painter->setPen(pen);
 
@@ -1362,7 +1363,7 @@ void ClusterView::renderView(QPainter *painter, const RenderOptionSet *options, 
             txt = QString("%1 spikes").arg(m_CD.num_events);
             QPen pen;
             pen.setWidth(1);
-            pen.setColor(q->mvContext()->color("info_text"));
+            pen.setColor(ctx->color("info_text"));
             painter->setFont(font);
             painter->setPen(pen);
         txt = painter->fontMetrics().elidedText(txt, Qt::ElideRight, RR.width());

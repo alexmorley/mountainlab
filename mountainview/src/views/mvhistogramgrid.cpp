@@ -75,8 +75,8 @@ MVHistogramGrid::~MVHistogramGrid()
 //{
 //    QWidget::paintEvent(evt);
 
-    MVContext* c = qobject_cast<MVContext*>(mvContext());
-    Q_ASSERT(c);
+//    MVContext* c = qobject_cast<MVContext*>(mvContext());
+//    Q_ASSERT(c);
 
 //    QPainter painter(this);
 //    if (isCalculating()) {
