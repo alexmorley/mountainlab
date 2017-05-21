@@ -106,7 +106,8 @@ bool p_isolation_metrics(QStringList timeseries_list, QString firings_path, QStr
             }
         }
 
-        templates0 = compute_templates_0(X, times, labels, opts.clip_size);
+        //templates0 = compute_templates_0(X, times, labels, opts.clip_size);
+        templates0 = compute_templates_in_parallel(X, times, labels, opts.clip_size);
     }
 
     qDebug().noquote() << "Determining pairs to compare...";
@@ -619,10 +620,10 @@ QJsonObject get_pair_metrics(const DiskReadMda32& X, const QVector<double>& time
 }
 bool is_bursting_parent_candidate(const Mda32& template0, const Mda32& template0_parent, P_isolation_metrics_opts opts)
 {
-    double maxabs = 0, maxabs_parent = 0;
+    float maxabs = 0, maxabs_parent = 0;
     for (bigint i = 0; i < template0.totalSize(); i++) {
-        maxabs = qMax(fabs(template0.value(i)), maxabs);
-        maxabs_parent = qMax(fabs(template0_parent.value(i)), maxabs_parent);
+        maxabs = qMax((float)fabs(template0.value(i)), maxabs);
+        maxabs_parent = qMax((float)fabs(template0_parent.value(i)), maxabs_parent);
     }
     if (maxabs_parent < maxabs)
         return false;
