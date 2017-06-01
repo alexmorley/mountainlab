@@ -31,7 +31,27 @@ bool p_sort_clips(QString clips_path, QString labels_out, Sort_clips_opts opts)
     for (bigint i = 0; i < L; i++) {
         indices[i] = i;
     }
-
+   
+    /*qDebug().noquote() << QString("tdiv %1").arg(opts.use_times_fet); 
+    if (opts.use_times_fet > 0) {
+        qDebug().noquote() << "Adding event times to clips features";
+        qDebug().noquote() << QString(opts.event_times);
+        Mda32 times(opts.event_times);
+        {
+            double tfet=0;
+            double tdiv=opts.use_times_fet;
+            double tdiv1 = times.get(L-1);
+            qDebug().noquote() << QString("tdiv %1, tdiv1 %2").arg(tdiv).arg(tdiv1);
+            for (bigint m = 0; m < M; m++) {
+                for (bigint l = 0; l < L; l++) {
+                    tfet = times.get(l)/tdiv;
+                    clips.setValue(tfet, m, 14, l);
+                }
+            }
+        }
+    }
+    qDebug().noquote() << QString("%1").arg(clips.value(1,9,1));
+    */
     qDebug().noquote() << "Sorting clips...";
     QVector<int> labels = P_sort_clips::sort_clips_subset(clips, indices, opts);
 
@@ -152,13 +172,43 @@ QVector<int> sort_clips_subset(const Mda32& clips, const QVector<bigint>& indice
                 }
             }
         }
-
+        
         Mda32 CC, sigma;
         QTime timer;
         timer.start();
         pca_subsampled(CC, FF, sigma, clips_reshaped, opts.num_features, false, opts.max_samples); //should we subtract the mean?
         qDebug().noquote() << QString("Time elapsed for pca (%1x%2x%3): %4 sec").arg(M).arg(T).arg(L0).arg(timer.elapsed() * 1.0 / 1000);
     }
+    
+    qDebug().noquote() << QString("Features (%1x%2x%3)").arg(FF.N1()).arg(FF.N2()).arg(FF.N3());
+    if (opts.use_times_fet != 0) {
+        qDebug().noquote() << "Adding event times to clips features";
+        qDebug().noquote() << QString(opts.event_times);
+        Mda32 times(opts.event_times);
+        {
+            QVector<double> timesv(L0);
+            for (bigint l = 0; l < L0; l++) {
+                timesv[l] = times.get(indices[l]);
+            }
+            double tmean=MLCompute::mean(timesv);
+            double tstd=MLCompute::stdev(timesv);
+            double tdiv=opts.use_times_fet;
+            int    fet_ind = opts.num_features - 1; 
+            double tfet=0;
+            if (opts.use_times_fet < 0) { //Z-Score
+                for (bigint l = 0; l < L0; l++) {
+                    tfet = (timesv[l]-tmean)/tstd;
+                    FF.setValue(tfet, fet_ind, l);
+                }
+            } else {
+                for (bigint l = 0; l < L0; l++) { // Time Divisor
+                    tfet = times.get(indices[l])/tdiv;
+                    FF.setValue(tfet, fet_ind, l);
+                }
+            }
+        }
+    }
+    
 
     isosplit5_opts i5_opts;
     i5_opts.isocut_threshold = opts.isocut_threshold;

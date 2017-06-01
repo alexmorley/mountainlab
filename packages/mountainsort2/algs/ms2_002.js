@@ -37,6 +37,7 @@ exports.spec=function() {
 	spec0.parameters.push({name:"fit_stage",optional:true,default_value:'false'});
 	spec0.parameters.push({name:'subsample_factor',optional:true,default_value:1});
 	spec0.parameters.push({name:'channels',optional:true,default_value:''});
+    spec0.parameters.push({name:'use_times_fet',optional:true,default_value:0}); 
 	return common.clone(spec0);
 };
 
@@ -442,7 +443,11 @@ exports.run=function(opts,callback) {
 		common.mp_exec_process('mountainsort.sort_clips',
 			{clips:clips},
 			{labels_out:labels},
-			{_request_num_threads:opts.num_threads},
+			{
+                _request_num_threads:opts.num_threads,
+                event_times:event_times,
+                use_times_fet:opts.use_times_fet
+            },
 			sort_clips_callback
 		);	
 	}

@@ -142,6 +142,8 @@ QJsonObject get_spec()
         X.addInputs("clips");
         X.addOutputs("labels_out");
         //X.addRequiredParameters();
+        X.addOptionalParameter("use_times_fet", "", 0);
+        X.addOptionalParameter("event_times", "", "");
         processors.push_back(X.get_spec());
     }
     {
@@ -430,6 +432,8 @@ int main(int argc, char* argv[])
         QString clips = CLP.named_parameters["clips"].toString();
         QString labels_out = CLP.named_parameters["labels_out"].toString();
         Sort_clips_opts opts;
+        opts.use_times_fet = CLP.named_parameters["use_times_fet"].toInt();
+        opts.event_times = CLP.named_parameters["event_times"].toString();
         ret = p_sort_clips(clips, labels_out, opts);
     }
     else if (arg1 == "mountainsort.reorder_labels") {
